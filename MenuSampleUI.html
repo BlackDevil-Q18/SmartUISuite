@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>jQuery UI Menu - Default functionality</title>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <script src="ListPrediction.js"></script>
+  <script>
+  var menuName = "GlobalMenu2";
+  $(function() {  
+    var genericOnClick = function(){
+    $("#actionstatus").append("Menu Item Cliked"+event.target.dataset.inteluid+'<br>');
+  }
+
+var menuData = [{
+                  id:'menu1',
+                  label:'Item1'
+                  ,onclick:genericOnClick
+                },
+                {
+                  id:'menu2',
+                  label:'Item2'
+                  ,onclick:genericOnClick
+                },
+                {
+                  id:'menu3',
+                  label:'Item3',
+                  subMenu:[
+                            {
+                              id:'sub-menu1',
+                              label:'SUB-Item1'
+                              ,onclick:genericOnClick
+                            },
+                            {
+                              id:'sub-menu2',
+                              label:'SUB-Item2'
+                              ,onclick:genericOnClick
+                            },
+                            {
+                              id:'sub-menu3',
+                              label:'SUB-Item3'
+                              ,onclick:genericOnClick
+                            }
+                          ]
+                },
+                {
+                  id:'menu4',
+                  label:'Item4'
+                  ,onclick:genericOnClick
+                },
+                {
+                  id:'menu5',
+                  label:'Item5'
+                  ,onclick:genericOnClick
+                },
+                {
+                  id:'menu6',
+                  label:'Item6'
+                  ,onclick:genericOnClick
+                },
+                {
+                  id:'menu7',
+                  label:'Item7'
+                  ,onclick:genericOnClick
+                }];
+
+    $("#resetDraw").click(function(){drawMenuUI(renderDiv,menuName,menuData)});
+    var renderDiv = $("#MenuHolder");
+
+    function drawMenuUI(renderDiv,menuName,menuData){
+          renderDiv.empty();
+
+          var menuContainer = $('<ul></ul>');
+          var menuPrediction = new ListPrediction(menuName);
+
+          function updatePredictor(){
+              menuPrediction.ItemOrderUpdate(event.target);
+            }
+
+          function createMenuItems(data,_updateRecords){
+            return data.map(function(_item){
+                if(_item.subMenu){
+                  var subMenuContainer = $('<ul></ul>');
+                  var subMenuPrediction = new ListPrediction(menuName+'_'+_item.id);
+                  function updateRecords (){
+                    subMenuPrediction.ItemOrderUpdate(event.target);
+                  } 
+                  var newOrderList = subMenuPrediction.ItemOrderPrediction(createMenuItems(_item.subMenu,updateRecords));
+                  subMenuContainer.append(newOrderList);
+                  var itemLI = $('<li data-IntelUID="'+_item.id+'">'+_item.label+'</li>');
+                  itemLI.append(subMenuContainer);
+                  if(_item.onclick){
+                    itemLI.click(_item.onclick);
+                  }
+                  return itemLI.click(_updateRecords)[0];
+                }else{
+                  var itemLI = $('<li data-IntelUID="'+_item.id+'">'+_item.label+'</li>');
+                  if(_item.onclick){
+                    itemLI.click(_item.onclick);
+                  }
+                  return itemLI.click(_updateRecords)[0];
+                }
+            });
+          }
+
+          var TabArray = createMenuItems(menuData,updatePredictor);
+          var newOrderList = menuPrediction.ItemOrderPrediction(TabArray);
+
+          menuContainer.prepend(newOrderList);
+          menuContainer.menu();
+          renderDiv.append(menuContainer);
+        }
+
+
+      drawMenuUI(renderDiv,menuName,menuData);
+  });
+
+  </script>
+  <style>
+  .ui-menu { width: 150px; }
+  </style>
+</head>
+<body>
+ 
+ <div>
+  <button id="resetDraw">REDRAW</button>
+</div>
+
+
+<div id="MenuHolder">
+ </div>
+ <div id="actionstatus">
+ </div>
+</body>
+</html>
