@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>jQuery UI Tabs - Default functionality</title>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <script src="ListPrediction.js"></script>
+  <script>
+
+var content1 = $('<div id="tabs-1">tab content1</div>');
+var content2 = $('<div id="tabs-2">tab content2</div>');
+var content3 = $('<div id="tabs-3">tab content3</div>');
+var content4 = $('<div id="tabs-4">tab content4</div>');
+var content5 = $('<div id="tabs-5">tab content5</div>');
+var content6 = $('<div id="tabs-6">tab content6</div>');
+    var tabsList = [{
+                  label:'TAB 1',
+                  id:'Tab1',
+                  content:content1
+                },
+                {
+                  label:'TAB 2',
+                  id:'Tab2',
+                  content:content2
+                }
+                ,
+                {
+                  label:'TAB 3',
+                  id:'Tab3',
+                  content:content3
+                },
+                {
+                  label:'TAB 4',
+                  id:'Tab4',
+                  content:content4
+                },
+                {
+                  label:'TAB 5',
+                  id:'Tab5',
+                  content:content5
+                },
+                {
+                  label:'TAB 6',
+                  id:'Tab6',
+                  content:content6
+                }]
+
+
+  $(function() {
+
+    var renderDiv = $("#TabConatainer");
+    $("#resetDraw").click(function(){drawMenuUI(renderDiv,'TabUI123',tabsList)});
+    
+    function drawMenuUI(renderDiv,TabUID,tabsList){
+          renderDiv.empty();
+          var tabs = $('<div id="tabs"></div>')
+          var TabPrediction = new ListPrediction(TabUID);
+          function updatePredictor(){
+              TabPrediction.ItemOrderUpdate(event.target.parentNode);
+            }
+
+          var tabContainer = $("<ul></ul>");
+          var contentIDList = [];
+          var TabArray = tabsList.map(function(tabDetails){
+            if(contentIDList.indexOf(tabDetails.content[0].id)===-1){
+              contentIDList.push(tabDetails.content[0].id);
+              tabs.append(tabDetails.content);
+            }
+            return $('<li data-IntelUID="'+tabDetails.id+'"><a href="#'+tabDetails.content[0].id+'">'+tabDetails.label+'</a></li>').click(updatePredictor)[0];
+          });
+          var newOrderList = TabPrediction.ItemOrderPrediction(TabArray);
+          tabContainer.append(newOrderList);
+          tabs.prepend(tabContainer);
+          tabs.tabs({ active: 0});
+          renderDiv.append(tabs);
+
+    };
+    drawMenuUI(renderDiv,'TabUI123',tabsList);
+  });
+
+
+  </script>
+</head>
+<body>
+  <button id="resetDraw">REDRAW</button>
+
+<div id="TabConatainer">
+</div>
+
+ 
+</body>
+</html>
