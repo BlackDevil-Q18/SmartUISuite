@@ -1,0 +1,278 @@
+<html>
+<head>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js"></script>
+
+<!-- Latest compiled and minified CSS <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css">-->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="intelController.css">
+<script type="text/javascript">
+
+require.config({
+	 shim : {
+        "bootstrap" : { "deps" :['jquery'] },
+        "backbone"	:{"deps" : ['Underscore']}
+    },
+    paths: {
+        'jquery': 'js/jquery',
+        'jqUI'	: 'js/jquery-ui',
+        "bootstrap" : 'bootstrap/js/bootstrap',
+        "Underscore" :"js/Underscore",
+        "Backbone"	:"backbone"
+    }
+});
+
+
+define('jq',['jquery'],function(jq){
+    return jq.noConflict( true );
+});
+
+define('_',['Underscore'],function(Underscore){
+    return Underscore;
+});
+
+
+//global parent require everything starts here
+require(['jq'],function(jq){
+	jq(function(){
+
+	require(['FormInputJSON','PredictionTree','PredictionController','PredictionModel'],function(formInput,PredictionTree,PredictionController,PredictionModel){
+
+		
+		var form = formInput.getForm();
+		var formName = form.FormName;
+
+
+		var predictionTree = new PredictionTree('userCreateForm');
+
+		var formSubmit =function(){
+			predictionTree.learn(jq('#formContainer'));		
+		}
+
+		 var fieldValueChange = function(event,currentField){
+		 	PredictionController.Predict(jq('#formContainer'),currentField,predictionTree);
+		 }
+
+
+		var DisplayRecords =function(){
+					console.log("All Records...");
+					console.log(predictionTree.printTreeStructure());
+				}
+
+
+		
+
+
+		
+			var docFragment = jq('#formContainer');
+
+
+
+			// IntelController UI :START
+
+			var modifyMLSettings = function(){
+				var enableprediction = jq('#enablePrediction');
+				var enableLearning = jq('#enableLearning');
+				predictionTree.togglePrediction(enableprediction[0].checked);
+				predictionTree.toggleLearning(enableLearning[0].checked);
+			};
+
+			var intelController = jq('<span style="font-size: 2.5em;" class="noselect glyphicon glyphicon-info-sign" aria-hidden="true"></span>').click(function(){
+				controllerContainer.toggle();
+				modifyMLSettings();
+			});
+			docFragment.append(intelController);
+
+			var controllerContainer = jq('<div id="controllerContainer" class="controllerContainer"></div>').blur(function(){
+				controllerContainer.toggle();
+				modifyMLSettings();
+			});
+			controllerContainer.insertAfter(intelController);
+			controllerContainer.toggle();
+
+			var generalSettingsConatiner = jq('<div id="generalSettingsConatiner" class="generalSettingsConatiner"></div>');
+			controllerContainer.append(generalSettingsConatiner);
+
+			var formFieldsSettingsConatiner = jq('<div id="formFieldsSettingsConatiner" class="formFieldsSettingsConatiner"></div>');
+			controllerContainer.append(formFieldsSettingsConatiner);
+
+
+			var generalSettings = [{
+										name:'enablePrediction',
+										label:'Help me!',
+										actionType:'checkbox',
+										defaultValue:predictionTree.isPredictionEnabled()
+									},
+									{
+										name:'enableLearning',
+										label:'Enable Learning',
+										actionType:'checkbox',
+										defaultValue:predictionTree.isLearningEnabled()
+									},
+									{
+										name:'forgetLearned',
+										label:'Forget What you have learned',
+										actionType:'button',
+										icon:'trash',
+										actionFun:function(){alert('Lost all!!!');
+															 predictionTree.resetPredictionData()}
+									},
+									{
+										name:'displayrecords',
+										label:'Show me what you learned',
+										actionType:'button',
+										icon:'film',
+										actionFun:function(){predictionTree.printTreeStructure()}
+									}];
+
+			generalSettings.forEach(function(_setting){
+				var container = jq('<div></div>');
+				var settingUI = jq('<label class="settingLabel">'+_setting.label+'</label>');
+				container.append(settingUI);
+				
+				if(_setting.actionType==='button'){
+					var settingAction = jq('<div class="settingAction" id="'+_setting.name+'"><span class="glyphicon glyphicon-'+_setting.icon+'" aria-hidden="true"></span><div>');
+					settingAction.click(_setting.actionFun);
+					container.append(settingAction);
+				}else if(_setting.actionType==='checkbox'){
+					var settingAction = jq('<div class="settingAction"><input type="'+_setting.actionType+'" id="'+_setting.name+'" '+(_setting.defaultValue===true?'checked':'')+'><div>');
+					container.append(settingAction);
+				}
+				
+				generalSettingsConatiner.append(container);
+			});
+
+			// IntelController UI :END
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			if(null!==formInput.getForm()){
+				var formDetails = formInput.getForm();
+				//formDetails.Fields.forEach(function(field){
+
+				for(var t=0;t<formDetails.Fields.length;t++){
+					var field = formDetails.Fields[t];
+					if(field.type){
+						switch(field.type){
+							case 'textbox' : {
+												var fieldParent = jq('<div class="form-group"><div>');
+												var label = jq('<label for='+field.name+'></label>');
+													label.text(field.label);						
+												var textElem = jq('<input type="textbox" class="form-control" data-intel='+field.intel+' data-w='+t+' id='+field.name+'></input>');
+													if(true===field.intel){
+														textElem.change(function(){
+															fieldValueChange(event,this);
+														});
+													};
+
+													fieldParent.append(label);
+													fieldParent.append(textElem);
+
+												docFragment.append(fieldParent);
+											  }
+											  break;
+							case 'textArea': {
+
+												var fieldParent = jq('<div class="form-group"><div>');
+												var label = jq('<label for='+field.name+'></label>');
+													label.text(field.label);
+												var textElem = jq('<input type="textarea" class="form-control" data-intel='+field.intel+' data-w='+t+' id='+field.name+'></input>');
+												if(true===field.intel){
+													textElem.change(function(){
+														fieldValueChange(event,this);
+													});
+												}
+													fieldParent.append(label);
+													fieldParent.append(textElem);
+
+												docFragment.append(fieldParent);
+							                  }
+							                  break;
+							default			: {
+												var fieldParent = jq('<div class="form-group"><div>');
+												var label = jq('<label for='+field.name+'></label>');
+													label.text(field.label);						
+												var textElem = jq('<input type="textbox" class="form-control" data-intel='+field.intel+' data-w='+t+' id='+field.name+'></input>');
+												if(true===field.intel){
+													textElem.change(function(){
+														fieldValueChange(event,this);
+													});
+												};
+
+													fieldParent.append(label);
+													fieldParent.append(textElem);
+
+												docFragment.append(fieldParent);
+											  }
+						}
+					}
+				}
+				var submit = jq('<button class="btn btn-default value="SUBMIT">SUBMIT</button>').click(function(){
+						formSubmit();
+					});
+				var displayRecords = jq('<button class="btn btn-default value="FetchRecords">Display Records</button>').click(function(){
+						DisplayRecords();
+					});
+				var resetRecords = jq('<button class="btn btn-default value="ResetRecords">Reset Records</button>').click(function(){
+						predictionTree.resetPredictionData();
+					});
+				var enableLearning = jq('<button class="btn btn-default value="enableLearning">Toggle Learning</button>').click(function(){
+						predictionTree.toggleLearning();						
+					});
+				docFragment.append(submit);
+				docFragment.append(displayRecords);
+				docFragment.append(resetRecords);
+				docFragment.append(enableLearning);
+			}
+
+
+
+
+		});	
+		
+	});
+
+
+
+});
+
+
+</script>
+
+
+
+</head>
+
+<body class="noselect">
+
+<div id="formContainer">	
+</div>
+</body>
+</html>
