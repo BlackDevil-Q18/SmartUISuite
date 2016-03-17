@@ -4,14 +4,29 @@
   <meta charset="utf-8">
   <title>jQuery UI Menu - Default functionality</title>
   <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-  <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-  <script src="PredictionController/ListPrediction.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js"></script>
   <script>
   var menuName = "GlobalMenu2";
-  $(function() {  
-    var genericOnClick = function(){
-    $("#actionstatus").append("Menu Item Cliked"+event.target.dataset.inteluid+'<br>');
+
+  require.config({
+    paths: {
+        'jquery': 'http://code.jquery.com/jquery-1.10.2',
+        'jqUI'	: 'http://code.jquery.com/ui/1.11.4/jquery-ui',
+        'PredictionList':'../PredictionController/PredictionList'
+    }
+});
+
+
+define('jq',['jquery'],function(jq){
+    return jq.noConflict( true );
+});
+
+require(['jq','jqUI'],function(jq){
+	jq(function(){
+
+  require(['PredictionList'],function(PredictionList){
+    var genericOnClick = function(e){
+    jq("#actionstatus").append("Menu Item Cliked"+e.target.dataset.inteluid+'<br>');
   }
 
 var menuData = [{
@@ -66,37 +81,37 @@ var menuData = [{
                   ,onclick:genericOnClick
                 }];
 
-    $("#resetDraw").click(function(){drawMenuUI(renderDiv,menuName,menuData)});
-    var renderDiv = $("#MenuHolder");
+    jq("#resetDraw").click(function(){drawMenuUI(renderDiv,menuName,menuData)});
+    var renderDiv = jq("#MenuHolder");
 
     function drawMenuUI(renderDiv,menuName,menuData){
           renderDiv.empty();
 
-          var menuContainer = $('<ul></ul>');
-          var menuPrediction = new ListPrediction(menuName);
+          var menuContainer = jq('<ul></ul>');
+          var menuPrediction = new PredictionList(menuName);
 
-          function updatePredictor(){
-              menuPrediction.ItemOrderUpdate(event.target);
+          function updatePredictor(e){
+              menuPrediction.ItemOrderUpdate(e.target);
             }
 
           function createMenuItems(data,_updateRecords){
             return data.map(function(_item){
                 if(_item.subMenu){
-                  var subMenuContainer = $('<ul></ul>');
-                  var subMenuPrediction = new ListPrediction(menuName+'_'+_item.id);
-                  function updateRecords (){
-                    subMenuPrediction.ItemOrderUpdate(event.target);
+                  var subMenuContainer = jq('<ul></ul>');
+                  var subMenuPrediction = new PredictionList(menuName+'_'+_item.id);
+                  function updateRecords (e){
+                    subMenuPrediction.ItemOrderUpdate(e.target);
                   } 
                   var newOrderList = subMenuPrediction.ItemOrderPrediction(createMenuItems(_item.subMenu,updateRecords));
                   subMenuContainer.append(newOrderList);
-                  var itemLI = $('<li data-IntelUID="'+_item.id+'">'+_item.label+'</li>');
+                  var itemLI = jq('<li data-IntelUID="'+_item.id+'">'+_item.label+'</li>');
                   itemLI.append(subMenuContainer);
                   if(_item.onclick){
                     itemLI.click(_item.onclick);
                   }
                   return itemLI.click(_updateRecords)[0];
                 }else{
-                  var itemLI = $('<li data-IntelUID="'+_item.id+'">'+_item.label+'</li>');
+                  var itemLI = jq('<li data-IntelUID="'+_item.id+'">'+_item.label+'</li>');
                   if(_item.onclick){
                     itemLI.click(_item.onclick);
                   }
@@ -115,6 +130,8 @@ var menuData = [{
 
 
       drawMenuUI(renderDiv,menuName,menuData);
+	  });
+  });
   });
 
   </script>
