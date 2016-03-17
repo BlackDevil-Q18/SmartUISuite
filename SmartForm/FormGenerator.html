@@ -1,24 +1,19 @@
 <html>
 <head>
-<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js"></script>
-
-<!-- Latest compiled and minified CSS <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css">-->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 <link rel="stylesheet" type="text/css" href="intelController.css">
 <script type="text/javascript">
 
 require.config({
-	 shim : {
-        "bootstrap" : { "deps" :['jquery'] },
-        "backbone"	:{"deps" : ['Underscore']}
-    },
     paths: {
-        'jquery': 'js/jquery',
-        'jqUI'	: 'js/jquery-ui',
-        "bootstrap" : 'bootstrap/js/bootstrap',
-        "Underscore" :"js/Underscore",
-        "Backbone"	:"backbone"
+        'jquery': 'http://code.jquery.com/jquery-1.10.2',
+        'jqUI'	: 'http://code.jquery.com/ui/1.11.4/jquery-ui',
+        'FormInputJSON':'../PredictionController/FormInputJSON',
+        'PredictionTree':'../PredictionController/PredictionTree',
+        'PredictionController':'../PredictionController/PredictionController',
+        'PredictionModel':'../PredictionController/PredictionModel',
     }
 });
 
@@ -27,9 +22,6 @@ define('jq',['jquery'],function(jq){
     return jq.noConflict( true );
 });
 
-define('_',['Underscore'],function(Underscore){
-    return Underscore;
-});
 
 
 //global parent require everything starts here
@@ -187,7 +179,7 @@ require(['jq'],function(jq){
 													label.text(field.label);						
 												var textElem = jq('<input type="textbox" class="form-control" data-intel='+field.intel+' data-w='+t+' id='+field.name+'></input>');
 													if(true===field.intel){
-														textElem.change(function(){
+														textElem.change(function(event){
 															fieldValueChange(event,this);
 														});
 													};
@@ -205,7 +197,7 @@ require(['jq'],function(jq){
 													label.text(field.label);
 												var textElem = jq('<input type="textarea" class="form-control" data-intel='+field.intel+' data-w='+t+' id='+field.name+'></input>');
 												if(true===field.intel){
-													textElem.change(function(){
+													textElem.change(function(event){
 														fieldValueChange(event,this);
 													});
 												}
@@ -221,7 +213,7 @@ require(['jq'],function(jq){
 													label.text(field.label);						
 												var textElem = jq('<input type="textbox" class="form-control" data-intel='+field.intel+' data-w='+t+' id='+field.name+'></input>');
 												if(true===field.intel){
-													textElem.change(function(){
+													textElem.change(function(event){
 														fieldValueChange(event,this);
 													});
 												};
