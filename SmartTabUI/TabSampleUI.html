@@ -4,17 +4,31 @@
   <meta charset="utf-8">
   <title>jQuery UI Tabs - Default functionality</title>
   <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-  <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-  <script src="PredictionController/ListPrediction.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js"></script>
   <script>
+ require.config({
+    paths: {
+        'jquery': 'http://code.jquery.com/jquery-1.10.2',
+        'jqUI'  : 'http://code.jquery.com/ui/1.11.4/jquery-ui',
+        'PredictionList':'../PredictionController/PredictionList'
+    }
+});
 
-var content1 = $('<div id="tabs-1">tab content1</div>');
-var content2 = $('<div id="tabs-2">tab content2</div>');
-var content3 = $('<div id="tabs-3">tab content3</div>');
-var content4 = $('<div id="tabs-4">tab content4</div>');
-var content5 = $('<div id="tabs-5">tab content5</div>');
-var content6 = $('<div id="tabs-6">tab content6</div>');
+
+define('jq',['jquery'],function(jq){
+    return jq.noConflict( true );
+});
+
+require(['jq','jqUI'],function(jq){
+  jq(function(){
+
+  require(['PredictionList'],function(PredictionList){
+var content1 = jq('<div id="tabs-1">tab content1</div>');
+var content2 = jq('<div id="tabs-2">tab content2</div>');
+var content3 = jq('<div id="tabs-3">tab content3</div>');
+var content4 = jq('<div id="tabs-4">tab content4</div>');
+var content5 = jq('<div id="tabs-5">tab content5</div>');
+var content6 = jq('<div id="tabs-6">tab content6</div>');
     var tabsList = [{
                   label:'TAB 1',
                   id:'Tab1',
@@ -48,27 +62,27 @@ var content6 = $('<div id="tabs-6">tab content6</div>');
                 }]
 
 
-  $(function() {
+  jq(function() {
 
-    var renderDiv = $("#TabConatainer");
-    $("#resetDraw").click(function(){drawMenuUI(renderDiv,'TabUI123',tabsList)});
+    var renderDiv = jq("#TabConatainer");
+    jq("#resetDraw").click(function(){drawMenuUI(renderDiv,'TabUI123',tabsList)});
     
     function drawMenuUI(renderDiv,TabUID,tabsList){
           renderDiv.empty();
-          var tabs = $('<div id="tabs"></div>')
-          var TabPrediction = new ListPrediction(TabUID);
-          function updatePredictor(){
-              TabPrediction.ItemOrderUpdate(event.target.parentNode);
+          var tabs = jq('<div id="tabs"></div>')
+          var TabPrediction = new PredictionList(TabUID);
+          function updatePredictor(e){
+              TabPrediction.ItemOrderUpdate(e.target.parentNode);
             }
 
-          var tabContainer = $("<ul></ul>");
+          var tabContainer = jq("<ul></ul>");
           var contentIDList = [];
           var TabArray = tabsList.map(function(tabDetails){
             if(contentIDList.indexOf(tabDetails.content[0].id)===-1){
               contentIDList.push(tabDetails.content[0].id);
               tabs.append(tabDetails.content);
             }
-            return $('<li data-IntelUID="'+tabDetails.id+'"><a href="#'+tabDetails.content[0].id+'">'+tabDetails.label+'</a></li>').click(updatePredictor)[0];
+            return jq('<li data-IntelUID="'+tabDetails.id+'"><a href="#'+tabDetails.content[0].id+'">'+tabDetails.label+'</a></li>').click(updatePredictor)[0];
           });
           var newOrderList = TabPrediction.ItemOrderPrediction(TabArray);
           tabContainer.append(newOrderList);
@@ -79,8 +93,9 @@ var content6 = $('<div id="tabs-6">tab content6</div>');
     };
     drawMenuUI(renderDiv,'TabUI123',tabsList);
   });
-
-
+});
+});
+});
   </script>
 </head>
 <body>
